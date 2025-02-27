@@ -18,9 +18,12 @@ app.use("/signup", async (req, res) => {
 
 })
 
-app.get("/getUsers", async (req, response) => {
+app.get("/user", async (req, response) => {
   try {
     const users = await userModel.find({});
+    if (users.length === 0) {
+      res.send("Users not found");
+    }
     console.log(res);
     response.status(200).send(users);
   } catch (error) {
@@ -39,13 +42,25 @@ app.get("/getUserById", async (req, res) => {
   }
 })
 
-app.delete("/delete", async (req, res) => {
-  const { emailId } = req.query;
+app.delete("/user", async (req, res) => {
+  const { emailId, userId } = req.query;
   try {
-    console.log(emailId);
-    const user = userModel.deleteOne({ emailId });
-    console.log(user);
-    res.status(200).send(user)
+    console.log(userId)
+    const user = await userModel.findByIdAndDelete({ userId })
+    // console.log(user);
+    res.status(200).send("user deleted successfully")
+  } catch (error) {
+    res.send(error)
+  }
+})
+
+app.patch("/user", async (req, res) => {
+  const { userId, emailId } = req.query;
+  const data = req.body;
+  try {
+    // const user = await userModel.findOneAndUpdate({ _id: userId }, data)
+    const user = await userModel.findByIdAndUpdate(userId, data, { returnDocument: "after" });
+    res.status(200).send(user);
   } catch (error) {
     res.send(error)
   }
